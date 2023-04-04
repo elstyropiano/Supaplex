@@ -1,41 +1,56 @@
 import { useEffect, useRef, useState } from 'react'
+import Konva from 'konva'
 
 const useLogic = () => {
   const murphyRef = useRef(null)
   const stageRef = useRef(null)
 
   useEffect(() => {
-    const murphyData = murphyRef.current
+    // const murphy = murphyRef.current
 
-    document.addEventListener('keydown', moveMurphy)
+    document.addEventListener('keydown', (e) => moveMurphy(e))
   }, [])
 
   const moveMurphy = (e) => {
     e.preventDefault()
+
+    if (murphyRef.current.attrs.isAnimated) return
+
+    let direction
+    let axis
+
     if (e.code === 'ArrowDown') {
-      console.log('arrowDown')
+      direction = 50
+      axis = 'y'
     }
     if (e.code === 'ArrowUp') {
-      console.log('ArrowUp')
+      direction = -50
+      axis = 'y'
     }
     if (e.code === 'ArrowLeft') {
-      console.log('ArrowLeft')
+      direction = -50
+      axis = 'x'
     }
     if (e.code === 'ArrowRight') {
-      console.log('ArrowRight')
+      direction = 50
+      axis = 'x'
     }
+
+    murphyAnimation(direction, axis)
   }
 
-  const clickMurphy = (e) => {
-    const murphy = e.target
+  const murphyAnimation = (direction, axis) => {
+    const murphy = murphyRef.current
     const tween = new Konva.Tween({
       node: murphy,
-      duration: 0.5,
-      easing: Konva.Easings.EaseInOut,
-      x: murphy.attrs.x + 50,
+      duration: 0.4,
+      easing: Konva.Easings.Linear,
+      [axis]: murphy.attrs[axis] + direction,
+      onUpdate: () => murphy.setAttrs({ isAnimated: true }),
+
+      onFinish: () => murphy.setAttrs({ isAnimated: false }),
     })
-    console.log(e.target)
-    console.log('kliknieto w murphiego')
+
     tween.play()
   }
 
